@@ -1,0 +1,99 @@
+<html layout:decorate="~{layoutTailWind}">
+<div layout:fragment="content" class="w-full">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        #top {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            padding: 0 10px;
+            line-height: 40px;
+            font-size: 12px;
+        }
+        #calendar {
+            max-width: 83.333333333%;
+            margin: 40px auto;
+            padding: 0;
+        }
+    </style>
+
+    <div class="bg-white rounded-2xl mt-4 p-4 w-10/12 mx-auto">
+        <div class="w-5/6 flex pt-8 m-auto mb-4">
+            <form class="">
+                <select name="targetDong" onchange="this.form.submit()"
+                        class=" bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/10 p-2.5">
+                    <option value="">동 선택</option>
+                    <option value="100">전체 일정</option>
+                    <option value="101">101동</option>
+                    <option value="102">102동</option>
+                    <option value="103">103동</option>
+                    <option value="104">104동</option>
+                    <option value="105">105동</option>
+                    <option value="106">106동</option>
+                    <option value="107">107동</option>
+                    <option value="108">108동</option>
+                    <option value="109">109동</option>
+                </select>
+            </form>
+            <div class="relative mr-0 ml-auto my-auto ">
+                <div class="row flex justify-between w-full m-auto ">
+                    <div class="my-auto">
+                        <a th:href="@{/schedule/create}"
+                           class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                            일정 추가</a>
+                        <a th:href="@{/schedule/manage}"
+                           class="py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                            일정 관리</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2 class="schedule-alphabet" th:text="${nowDong}" style="text-align: center; font-size: 3rem"></h2>
+        <div class="calendarWidth" id='calendar'></div>
+    </div>
+</div>
+</html>
+
+<script th:inline="javascript">
+    var scheduleOBJ = [[${scheduleList}]];
+    document.addEventListener('DOMContentLoaded', function () {
+        var initialLocaleCode = 'ko';
+        var localeSelectorEl = document.getElementById('locale-selector');
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+            },
+            locale: initialLocaleCode,
+            buttonIcons: false, // show the prev/next text
+            weekNumbers: true,
+            navLinks: true, // can click day/week names to navigate views
+            editable: false,
+            dayMaxEvents: true, // allow "more" link when too many events
+            events: scheduleOBJ
+        });
+
+        calendar.render();
+        // build the locale selector's options
+        calendar.getAvailableLocaleCodes().forEach(function (localeCode) {
+            var optionEl = document.createElement('option');
+            optionEl.value = localeCode;
+            optionEl.selected = localeCode == initialLocaleCode;
+            optionEl.innerText = localeCode;
+            localeSelectorEl.appendChild(optionEl);
+        });
+        // when the selected option changes, dynamically change the calendar option
+        localeSelectorEl.addEventListener('change', function () {
+            if (this.value) {
+                calendar.setOption('locale', this.value);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,53 @@
+<html layout:decorate="~{layoutTailWind}">
+<div layout:fragment="content" class="container mx-auto">
+    <div class="col-6 my-8 w-10/12 m-auto ">
+        <a th:href="@{/vote/list?type=list}"
+           class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+            목록</a>
+    </div>
+    <div class="flex justify-center my-8 ">
+        <div class="card justify-center w-10/12 bg-base-100 shadow-xl bg-white border" style="border-radius: 40px;">
+            <div class="card-body mx-auto p-4" style="margin: 4rem; margin-bottom: 2rem; margin-top: 2rem;">
+                <div class="schedule-alphabet break-all text-2xl" style="text-align: center"
+                     th:text="${vote.getTitle()}"></div>
+                <br/><br/>
+                <div class="schedule-alphabet break-all" th:text="${vote.getContent()}"></div>
+                <br/><br/>
+                <div class="card-body mx-auto p-4 border bg-gray-100"
+                     style="margin: 4rem; margin-bottom: 2rem; margin-top: 2rem; border-radius: 10px;">
+                    <div class="schedule-alphabet"
+                         th:text="'게시일 : '+${#temporals.format(vote.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                    <br/>
+                    <div class="schedule-alphabet" th:text="'투표 시작일 : '+${vote.getStartDate()}"></div>
+                    <div class="schedule-alphabet" th:text="'투표 마감일 : '+${vote.getEndDate()}"></div>
+                </div>
+                <div th:with="today=${today}, startDay=${vote.getStartDate()}, EndDay=${vote.getEndDate()}">
+                    <!-- 날짜 비교 -->
+                    <div class="warning" th:if="${today.isBefore(startDay) or today.isAfter(EndDay)}">
+                        <p>투표 기간이 아닙니다.</p>
+                    </div>
+                    <div th:unless="${today.isBefore(startDay) or today.isAfter(EndDay)}">
+                        <div class="warning text-center" th:if="${vote.isVoted(loginUser.getId())}">
+                            <p>이미 투표에 참여햐셨습니다.</p>
+                        </div>
+                        <div th:unless="${vote.isVoted(loginUser.getId())}">
+                            <div class="my-3" style="text-align: center">
+                                <button type="button"
+                                        class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                                        th:onclick="|if(confirm('투표하시면 취소할 수 없습니다. \n정말로 찬성하시겠습니까?')){location.href='@{/vote/agree/{id}(id=${vote.Id})}'}|">
+                                    찬성
+                                </button>
+                                <button type="button"
+                                        class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                                        th:onclick="|if(confirm('투표하시면 취소할 수 없습니다. \n정말로 반대하시겠습니까?')){location.href='@{/vote/disagree/{id}(id=${vote.Id})}'}|">
+                                    반대
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

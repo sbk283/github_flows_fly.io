@@ -1,0 +1,170 @@
+<!-- /resources/templates/community/detail.html -->
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${community.title}"></title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-3">
+    <!-- 질문 -->
+    <h2 class="border-bottom py-2" th:text="${community.title}"></h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" th:utext="${@commonUtil.markdown(community.content)}"></div>
+            <div>
+                <img th:src="@{|/file/${community.thumbnailImg}|}" alt="12313s">
+            </div>
+            <div class="d-flex justify-content-end">
+                <div th:if="${community.modifiedDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">수정됨</div>
+                    <div th:text="${#temporals.format(community.modifiedDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                </div>
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">
+                        <div class="mb-2" th:if="${community.user != null}" th:text="${community.user.nickname}"></div>
+                        <div th:text="${#temporals.format(community.createDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="my-3">
+                <a id="community_recommend" class="recommend btn btn-sm btn-outline-secondary">
+                    추천
+                    <span id="recommend_community_count" class="badge rounded-pill bg-success"
+                          th:text="${#lists.size(community.likeCount)}"></span>
+                </a>
+                <a th:href="@{|/community/modify/${community.id}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${community.user != null and #authentication.getPrincipal().getUsername() == community.user.userId}"
+                   th:text="수정"></a>
+                <a onclick="return confirm('정말 삭제하시겠습니까?')" th:href="@{|/community/delete/${community.id}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${community.user != null and #authentication.getPrincipal().getUsername() == community.user.userId}"
+                   th:text="삭제"></a>
+                <!-- 관리자 전용 삭제 버튼 -->
+                <a onclick="return confirm('정말 삭제하시겠습니까?')" th:href="@{|/community/delete/${community.id}|}"
+                   class="delete btn btn-sm btn-danger" th:if="${loginUser.isCheckedAdmin()}"
+                   th:text="'관리자 삭제'"></a>
+            </div>
+        </div>
+    </div>
+    <a th:href="@{/community/list}" class="btn btn-primary">목록보기</a>
+    <!-- 답변의 갯수 표시 -->
+    <h5 class="border-bottom my-3 py-2"
+        th:text="|${#lists.size(community.replyList)}개의 답변이 있습니다.|"></h5>
+
+    <!-- 답변 반복 시작 -->
+    <div class="card my-3" th:each="communityReply : ${community.replyList}">
+        <a th:id="|communityReply_${communityReply.id}|"></a>
+        <div class="card-body">
+            <div class="card-text" th:utext="${@commonUtil.markdown(communityReply.content)}"></div>
+            <div class="d-flex justify-content-end">
+                <div th:if="${communityReply.modifiedDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">
+                        <div class="mb-2" th:text="${'수정됨'}"></div>
+                        <div th:text="${#temporals.format(communityReply.modifiedDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                    </div>
+                </div>
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2" th:if="${communityReply.user != null}" th:text="${communityReply.user.nickname}"></div>
+                    <div th:text="${#temporals.format(communityReply.createDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                </div>
+            </div>
+            <div class="my-3">
+                <a th:id="@{|communityReply_recommend_${communityReply.id}|}"
+                   class="communityReply_recommend recommend btn btn-sm btn-outline-secondary">
+                    추천
+                    <span th:id="@{|recommend_communityReply_count_${communityReply.id}|}"
+                          class="recommend_communityReply_count badge rounded-pill bg-success"
+                          th:text="${#lists.size(communityReply.likeCount)}"></span>
+                </a>
+                <a th:href="@{|/communityReply/modify/${communityReply.id}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:userize="isAuthenticated()"
+                   th:if="${communityReply.user != null and #authentication.getPrincipal().getUsername() == communityReply.user.userId}"
+                   th:text="수정"></a>
+                <a onclick="return confirm('정말 삭제 하시겠습니까?');" th:href="@{|/communityReply/delete/${communityReply.id}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${communityReply.user != null and #authentication.getPrincipal().getUsername() == communityReply.user.userId}"
+                   th:text="삭제"></a>
+                <!-- 관리자 전용 삭제 버튼 -->
+                <a onclick="return confirm('정말 삭제하시겠습니까?')" th:href="@{|/communityReply/delete/${communityReply.id}|}"
+                   class="delete btn btn-sm btn-danger" th:if="${loginUser.isCheckedAdmin()}"
+                   th:text="'관리자 삭제'"></a>
+            </div>
+        </div>
+    </div>
+    <!-- 답변 반복 끝  -->
+    <!-- 답변 작성 -->
+    <form th:action="@{|/communityReply/create/${community.id}|}" th:object="${communityReplyForm}" method="post"
+          class="my-3">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <textarea
+                required
+                maxlength="2000"
+                placeholder="내용을 2,000자 이하로 입력하세요"
+                sec:authorize="isAuthenticated()"
+                th:field="*{content}"
+                class="form-control"
+                rows="10"
+        ></textarea>
+        <input type="submit" value="답변등록" class="btn btn-primary my-2">
+    </form>
+
+    <!--todo: 댓글도 추천과 추천취소가 가능해져야함-->
+    <script type="text/javascript" th:inline="javascript">
+        var community_id = [[${community.id}]];
+        var sessionKey = "LIKED_COMMUNITY_" + community_id;
+        var recommendButton = $('#community_recommend');
+        var countElement = $("#recommend_community_count");
+
+        if (sessionStorage.getItem(sessionKey)) recommendButton.addClass('active');
+
+        recommendButton.on("click", function () {
+            console.log(11)
+            var isAlreadyLiked = recommendButton.hasClass("active");
+
+            $.ajax({
+                type: "GET",
+                url: isAlreadyLiked ? `/community/unlike/${community_id}` : `/community/like/${community_id}`,
+                success: function (res) {
+                    countElement.text(res);
+                    sessionStorage[isAlreadyLiked ? "removeItem" : "setItem"](sessionKey, true);
+                    recommendButton.toggleClass("active");
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+
+        var sessionReplyKey = "LIKED_COMMUNITY_REPLY_" + community_id;
+        var recommendReplyButton = $('.communityReply_recommend');
+        var countReplyElement = $('.recommend_communityReply_count');
+
+        if (sessionStorage.getItem(sessionReplyKey)) recommendReplyButton.addClass('active');
+
+
+        recommendReplyButton.on("click", function () {
+            var _this = $(this); // 현재 선택한 답변의 추천 버튼
+            var thisRecommend_communityReply_count =  $(this).find(".recommend_communityReply_count")
+
+            var isAlreadyLiked = _this.hasClass("active");
+
+            $.ajax({
+                type: "GET",
+                url: isAlreadyLiked ? `/community/unlike/${community_id}` : `/community/like/${community_id}`,
+                success: function (res) {
+                    thisRecommend_communityReply_count.text(res);
+                    sessionStorage[isAlreadyLiked ? "removeItem" : "setItem"](sessionKey, true);
+                    _this.toggleClass("active");
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+
+    </script>
+
+</div>
+</body>
+</html>
+

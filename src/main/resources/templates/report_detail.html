@@ -1,0 +1,50 @@
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <span th:if="${report.isSecret}" class="badge bg-warning text-dark">Secret</span>
+    <title th:text="${report.title}"></title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-3">
+    <!-- 질문 -->
+    <h2 class="border-bottom py-2" th:text="${report.title}"></h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" th:utext="${@commonUtil.markdown(report.content)}"></div>
+            <div class="d-flex justify-content-end">
+                <div th:if="${report.modifiedDate != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">수정됨</div>
+                    <div th:text="${#temporals.format(report.modifiedDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                </div>
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2" th:if="${report.user != null}" th:text="${report.user.nickname}"></div>
+                    <div th:text="${#temporals.format(report.createDate, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}"></div>
+                </div>
+            </div>
+            <div class="my-3">
+                <a th:href="@{|/report/modify/${report.id}|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${report.user != null and #authentication.getPrincipal().getUsername() == report.user.userId}"
+                   th:text="수정"></a>
+                <!-- Delete button -->
+                <a onclick="return confirm('정말로 삭제하시겠습니까?')" th:href="@{|/report/delete/${report.id}|}"
+                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
+                   th:if="${report.user != null and #authentication.getPrincipal().getUsername() == report.user.userId}"
+                   th:text="삭제"></a>
+                <!-- 관리자 전용 삭제 버튼 -->
+                <a onclick="return confirm('정말 삭제하시겠습니까?')" th:href="@{|/report/delete/${report.id}|}"
+                   class="delete btn btn-sm btn-danger" th:if="${loginUser.isCheckedAdmin()}"
+                   th:text="'관리자 삭제'"></a>
+            </div>
+        </div>
+    </div>
+    <a th:href="@{/report/list}" class="btn btn-primary">목록보기</a>
+    <script th:inline="javascript">
+
+        $(document).ready(function() {
+              // Add logic to disable or hide features based on report's secret status and user authorization
+          });
+    </script>
+
+</div>
+</body>
+</html>

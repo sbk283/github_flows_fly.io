@@ -1,0 +1,90 @@
+CREATE TABLE Community (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    title VARCHAR(50),
+    content TEXT,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id)
+);
+
+CREATE TABLE CommunityReply (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    post_id BIGINT,
+    content TEXT,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id),
+    FOREIGN KEY (post_id) REFERENCES Community(id)
+);
+
+CREATE TABLE Notice (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    title VARCHAR(255),
+    content TEXT,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id)
+);
+
+CREATE TABLE Report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    author_id BIGINT,
+    title VARCHAR(255),
+    content TEXT,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (author_id) REFERENCES SiteUser(id)
+);
+
+CREATE TABLE ReportAnswer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    post_id BIGINT,
+    content TEXT,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id),
+    FOREIGN KEY (post_id) REFERENCES Report(id)
+);
+
+CREATE TABLE Schedule (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    content TEXT,
+    targetDong INT,
+    startDate DATE,
+    endDate DATE,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id)
+);
+
+CREATE TABLE SiteUser (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) UNIQUE,
+    nickname VARCHAR(255),
+    password VARCHAR(255),
+    phone VARCHAR(11) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+    apartDong INT,
+    apartHo INT,
+    approval BOOLEAN,
+    adminCheck BOOLEAN,
+    create_date DATETIME,
+    modified_date DATETIME
+);
+
+CREATE TABLE Vote (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    title VARCHAR(255),
+    content TEXT,
+    startDate DATE,
+    endDate DATE,
+    create_date DATETIME,
+    modified_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES SiteUser(id)
+);

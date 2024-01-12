@@ -1,0 +1,96 @@
+<html layout:decorate="~{layoutTailWind}">
+<div layout:fragment="content" class="w-full">
+    <div class="row my-3 flex justify-between w-10/12 m-auto mt-6">
+        <div class="col-6 my-auto">
+            <a th:href="@{/vote/list?type=list}"
+               class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 ">
+                전체투표</a>
+            <a th:href="@{/vote/list?type=card}"
+               class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 ">
+                카드 형식</a>
+            <a th:if="${loginUser.isCheckedAdmin()}" th:href="@{/vote/create}"
+               class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 ">
+                투표 등록</a>
+            <a th:if="${loginUser.isCheckedAdmin()}" th:href="@{/vote/manage}"
+               class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 ">
+                투표 관리</a>
+        </div>
+        <form class="w-1/2" action="/vote/list" method="GET">
+            <div class="flex">
+                <select id="countries" name="status"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/3 p-2.5">
+                    <option th:if="${param.status} != null" th:value="${param.status}" th:text="${status}"></option>
+                    <option th:unless="${#strings.equals(param.status,'total')}" value="total">전체</option>
+                    <option th:unless="${#strings.equals(param.status,'inProgress')}" value="inProgress">진행중</option>
+                    <option th:unless="${#strings.equals(param.status,'closed')}" value="closed">지난 투표</option>
+                    <option th:unless="${#strings.equals(param.status,'intended')}" value="intended">투표 예정</option>
+                </select>
+                <div class="relative w-full">
+                    <input type="hidden" name="type" value="list">
+                    <input type="search" name="kw" th:value="${param.kw}" id="search-dropdown"
+                           class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
+                           placeholder="검색">
+                    <button type="submit"
+                            class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 ">
+                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                        <span class="sr-only">검색</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="w-10/12 p-4 m-auto bg-white mt-8 rounded-2xl min-h-full">
+        <table class="w-full m-auto text-sm text-left rtl:text-right text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr class="text-center text-xl">
+                <th style="width:10%; font-weight: normal;">번호</th>
+                <th style="width:55%; font-weight: normal;">제목</th>
+                <th style="width:20%; font-weight: normal;">투표기간</th>
+                <th style="width:15%; font-weight: normal;">작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="odd:bg-white even:bg-gray-50 border-b h-12"
+                th:each="vote, loop : ${paging}">
+                <td class="text-center"
+                    th:text="${paging.getTotalElements - (paging.number * paging.size) - loop.index}"></td>
+                <td>
+                    <a th:href="@{|/vote/detail/${vote.id}|}" th:text="${vote.title}"></a>
+                </td>
+                <td class="text-center"><span
+                        th:text="${#temporals.format(vote.startDate, 'yy-MM-dd')} + ' ~ '+ ${#temporals.format(vote.endDate, 'yy-MM-dd')}"></span>
+                </td>
+                <td class="text-center" th:text="${#temporals.format(vote.createDate, 'yy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- 페이징처리 시작 -->
+        <br/>
+        <nav class="text-center" th:if="${!paging.isEmpty()}"
+             th:with="kwBase = '?kw=' + ${param.kw != null ? param.kw : ''}">
+            <ul class="inline-flex -space-x-px text-base h-10 ">
+                <li class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 "
+                    th:classappend="${!paging.hasPrevious} ? 'pointer-events-none'">
+                    <a class="page-link" th:href="@{|${kwBase}&type=list&page=${paging.number - 1}|}">이전</a>
+                </li>
+                <li th:class="${page == paging.number} ? 'flex items-center justify-center px-4 h-10 leading-tight bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 font-extrabold text-blue-400' : 'flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
+                    th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                    th:if="${page >= paging.number-5 and page <= paging.number+5}">
+                    <a th:text="${page + 1}" class="page-link" th:href="@{|${kwBase}&type=list&page=${page}|}"></a>
+                </li>
+                <li class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700"
+                    th:classappend="${!paging.hasNext} ? 'pointer-events-none'">
+                    <a class="page-link" th:href="@{|${kwBase}&type=list&page=${paging.number + 1}|}">다음</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- 페이징처리 끝 -->
+    </div>
+</div>
+</html>
+
+

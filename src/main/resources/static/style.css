@@ -1,0 +1,112 @@
+@font-face {
+    font-family: "GmarketSansMedium";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+    format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html > body {
+    font-family: "GmarketSansMedium";
+}
+
+h1 {
+    margin-top : 20px;
+}
+
+.fc-col-header-cell-cushion , .fc-daygrid-day-number, .fc-toolbar-title, .fc-event-title,.fc-timegrid-slot-label-cushion,.fc-timegrid-axis-cushion,.schedule-create{
+    text-decoration: none;
+    color: black;
+}
+.fc-event-title-container{
+    background : #fafd7f;
+    font-size: 1rem;
+}
+
+a {
+  text-decoration: none;
+}
+a:hover {
+
+}
+
+.btn-primary {
+/*  --bs-btn-bg: #ffc0c0;
+  --bs-btn-border-color: #ffc0c0; */
+  --bs-btn-hover-bg: yellow;
+  --bs-btn-hover-border-color: yellow;
+  --bs-btn-active-bg: red;
+  --bs-btn-active-border-color: red;
+  margin-bottom: 10px;
+}
+
+h5, .card-text {
+  font-size: 2rem;
+}
+
+.alert-danger > div {
+  color: #fff;
+}
+
+.first-btn {
+  margin-right: 10px;
+
+}
+
+.nav-link {
+    font-size: 20px;
+}
+
+.menu-bar-1 {
+    margin-left: 20px;
+}
+
+.menu-bar-2 {
+    margin-left: auto;
+}
+
+.navbar-brand {
+    margin-left: 20px;
+}
+
+.form-label {
+    font-size: 20px;
+}
+
+.warning{
+    color: red;
+}
+
+.schedule-alphabet {
+    text-align: center;
+}
+
+.vote-button-1, .vote-button-2 {
+    margin: 0px 0px 10px 10px;
+}
+
+.vote-detail-title-font {
+    font-size: 40px;
+}
+
+.vote-detail-content-font {
+    font-size: 25px;
+}
+
+.datesize {
+    max-width: 270px;
+    margin: auto;
+}
+
+.button-box, .vote-box{
+    margin :10px;
+    margin-bottom: 20px;
+}
+
+.button-box {
+    border-radius: 10px;
+}
+
+.admin-page {
+    font-size: 40px;
+}

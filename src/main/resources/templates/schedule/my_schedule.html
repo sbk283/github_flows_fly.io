@@ -1,0 +1,38 @@
+<html layout:decorate="~{layoutTailWind}">
+<div layout:fragment="content" class="container mx-auto">
+    <div class="my-auto w-10/12 m-auto">
+        <div class="col-6 " style="margin-top: 20px">
+            <a th:href="@{/schedule/list}"
+               class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                돌아가기</a>
+        </div>
+    </div>
+    <div class="flex justify-center my-8" th:each="schedule,loop : ${mySchedule}">
+        <div class="card justify-center w-10/12 bg-base-100 shadow-xl bg-white border" style="border-radius: 40px;">
+            <div class="card-body mx-auto p-4" style="margin: 4rem; margin-bottom: 2rem; margin-top: 2rem;">
+                <div class="schedule-alphabet break-all text-2xl" style="text-align: center"
+                     th:text="${schedule.getTitle()}"></div>
+                <br/><br/>
+                <div class="schedule-alphabet " th:text="'시작일자 : '+ ${schedule.getStartDate()}"></div>
+                <div class="schedule-alphabet" th:text="'종료일자 : '+ ${schedule.getEndDate()}"></div>
+                <br/>
+                <div class="my-3 text-center">
+                    <a th:href="@{|/schedule/modify/${schedule.Id}|}"
+                       class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                       th:text="수정">
+                    </a>
+                    <a onclick="return confirm('정말로 삭제 하시겠습니까?');"
+                       th:href="@{|/schedule/delete/${schedule.id}|}"
+                       class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                       sec:authorize="isAuthenticated()"
+                       th:text="삭제"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script" type='text/javascript'>
+
+</script>
+</html>

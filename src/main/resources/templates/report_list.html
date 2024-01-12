@@ -1,0 +1,64 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+    <div class="row my-3">
+        <div class="col-6">
+            <a th:href="@{/report/create}" class="btn btn-primary">게시글 등록하기</a>
+        </div>
+        <div class="col-6">
+            <form>
+                <div class="input-group">
+                    <input type="text" name="kw" id="search_kw" class="form-control" th:value="${param.kw}">
+                    <button class="btn btn-outline-secondary" id="btn_search">찾기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
+        <tr class="text-center">
+            <th>번호</th>
+            <th style="width:50%">제목</th>
+            <th>글쓴이</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-center" th:each="report, loop : ${paging}">
+            <td th:text="${paging.getTotalElements() - (paging.number * paging.size) - loop.index}"></td>
+            <td class="text-start">
+                <a th:href="@{|/report/detail/${report.id}|}" style="text-decoration: none;">
+                    <!-- 비밀글일 경우 자물쇠 아이콘 표시 -->
+                    <i th:if="${report.isSecret}" class="fas fa-lock"></i>
+                    <span th:text="${report.title}"></span>
+                </a>
+            </td>
+            <td><span th:if="${report.user != null}" th:text="${report.user.nickname}"></span></td>
+            <td th:text="${#temporals.format(report.createDate, 'yyyy년 MM월 dd일 HH시 mm분')}"></td>
+        </tr>
+        </tbody>
+
+    </table>
+    <!-- 페이징처리 시작 -->
+    <nav th:if="${!paging.isEmpty()}" th:with="kwBase = '?kw=' + ${param.kw != null ? param.kw : ''}" >
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" th:href="@{|${kwBase}&page=${paging.number - 1}|}">이전</a>
+            </li>
+            <li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                th:if="${page >= paging.number-5 and page <= paging.number+5}"
+                th:classappend="${page == paging.number} ? 'active'"
+                class="page-item">
+                <a  th:text="${page + 1}" class="page-link" th:href="@{|${kwBase}&page=${page}|}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" th:href="@{|${kwBase}&page=${paging.number + 1}|}">다음</a>
+            </li>
+        </ul>
+    </nav>
+    <!-- 페이징처리 끝 -->
+    <form th:action="@{/report/list}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
+</div>
+</html>

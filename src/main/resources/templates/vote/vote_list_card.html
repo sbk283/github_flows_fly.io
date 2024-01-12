@@ -1,0 +1,184 @@
+<html layout:decorate="~{layoutTailWind}">
+<div layout:fragment="content" class="w-full ">
+    <div class="mt-6 w-10/12 mx-auto">
+        <div class="row my-3 flex justify-between w-full m-auto mt-6 ">
+            <div class="my-auto">
+                <a th:href="@{/vote/list?type=card}"
+                   class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                    전체투표</a>
+                <a th:href="@{/vote/list?type=list}"
+                   class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                    리스트 형식</a>
+                <a th:if="${loginUser.isCheckedAdmin()}" th:href="@{/vote/create}"
+                   class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                    투표 등록</a>
+                <a th:if="${loginUser.isCheckedAdmin()}" th:href="@{/vote/manage}"
+                   class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
+                    투표 관리</a>
+            </div>
+            <form class="w-1/2" action="/vote/list" method="GET">
+                <div class="flex">
+                    <select id="countries" name="status"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/3 p-2.5">
+                        <option th:if="${param.status} != null" th:value="${param.status}" th:text="${status}"></option>
+                        <option th:unless="${#strings.equals(param.status,'total')}" value="total">전체</option>
+                        <option th:unless="${#strings.equals(param.status,'inProgress')}" value="inProgress">진행중
+                        </option>
+                        <option th:unless="${#strings.equals(param.status,'closed')}" value="closed">지난 투표</option>
+                        <option th:unless="${#strings.equals(param.status,'intended')}" value="intended">투표 예정</option>
+                    </select>
+                    <div class="relative w-full">
+
+                        <input type="hidden" name="type" value="card">
+                        <input type="search" name="kw" th:value="${param.kw}" id="search-dropdown"
+                               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="검색">
+                        <button type="submit"
+                                class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                        >
+                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                            <span class="sr-only">검색</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${#lists.size(voteList)} == 0">
+            <div class="flex w-full justify-center my-8" style="text-align: center">
+                <div class="card justify-center w-10/12 bg-base-100 shadow-xl bg-white border"
+                     style="border-radius: 40px;">
+                    <br/>
+                    <div class="warning " style="font-size: 2rem">등록된 투표가 없습니다.</div>
+                    <br/>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-center my-8 w-full" th:if="${#lists.size(voteList)} != 0" th:each="vote : ${voteList}">
+            <div class="card justify-center w-full bg-base-100 shadow-xl bg-white border" style="border-radius: 40px;">
+                <div class="card-body mx-auto p-4" style="margin: 4rem; margin-bottom: 2rem; margin-top: 2rem;">
+                    <div class="schedule-alphabet break-all text-2xl" style="text-align: center"
+                         th:text="${vote.getTitle()}"></div>
+                    <br/><br/>
+                    <div class="schedule-alphabet break-all" th:text="${vote.getContent()}"></div>
+                    <br/><br/>
+                    <div class="card-body mx-auto p-4 border bg-gray-100"
+                         style="margin: 4rem; margin-bottom: 2rem; margin-top: 2rem; border-radius: 10px;">
+                        <div class="schedule-alphabet"
+                             th:text="'게시일 : '+${#temporals.format(vote.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                        <br/>
+                        <div class="schedule-alphabet" th:text="'투표 시작일 : '+${vote.getStartDate()}"></div>
+                        <div class="schedule-alphabet" th:text="'투표 마감일 : '+${vote.getEndDate()}"></div>
+                    </div>
+                    <div class="warning text-center" th:if="${vote.isVoted(loginUser.getId())}">
+                        <p>이미 투표에 참여햐셨습니다.</p>
+                    </div>
+                    <div th:unless="${vote.isVoted(loginUser.getId())}">
+                        <div th:with="today=${today}, startDay=${vote.getStartDate()}, EndDay=${vote.getEndDate()}">
+                            <!-- 날짜 비교 -->
+                            <div class="warning text-center"
+                                 th:if="${today.isBefore(startDay) or today.isAfter(EndDay)}">
+                                <p>투표 기간이 아닙니다.</p>
+                            </div>
+                            <div th:unless="${today.isBefore(startDay) or today.isAfter(EndDay)}">
+
+                                <div class="my-3 vote_btn" style="text-align: center">
+                                    <button th:id="'agreeButton_' + ${vote.Id}"
+                                            type="button"
+                                            th:data-vote-id="${vote.Id}"
+                                            th:onclick="'voteButton(\'' + @{agree} + '\', ' + ${vote.Id} + ')'"
+                                            class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                                    >
+                                        찬성
+                                    </button>
+                                    <button th:id="'disagreeButton_' + ${vote.Id}"
+                                            type="button"
+                                            th:data-vote-id="${vote.Id}"
+                                            th:onclick="'voteButton(\'' + @{disagree} + '\', ' + ${vote.Id} + ')'"
+                                            class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                                    >
+                                        반대
+                                    </button>
+                                    <div th:id="'successMessage_' + ${vote.id}" class="warning" style="display: none">이미
+                                        투표에 참여하셨습니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-dial-init class="fixed end-6 bottom-16 group">
+        <button id="icon-select" type="button" data-dial-toggle="speed-dial-menu-default"
+                aria-controls="speed-dial-menu-default"
+                aria-expanded="false"
+                th:onclick="window.location.href='#'"
+                class="flex items-center justify-center text-white bg-blue-700 rounded-full w-14 h-14 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none">
+
+            <i id="icon" class="fa-solid fa-up-long fa-2xl" style="color: #ffffff;"></i>
+        </button>
+    </div>
+
+</div>
+<!--투표-->
+<script layout:fragment="script" type='text/javascript'>
+
+
+    // 아이콘 요소를 가져옵니다.
+    var icon = document.getElementById('icon');
+
+    // 마우스 오버 이벤트에 대한 핸들러 함수를 정의합니다.
+    function handleMouseOver() {
+        // fa-bounce 클래스를 추가합니다.
+        icon.classList.add('fa-bounce');
+    }
+
+    // 마우스 아웃 이벤트에 대한 핸들러 함수를 정의합니다.
+    function handleMouseOut() {
+        // fa-bounce 클래스를 제거합니다.
+        icon.classList.remove('fa-bounce');
+    }
+
+    // 마우스 오버와 아웃 이벤트에 대한 이벤트 리스너를 등록합니다.
+    var btn = document.getElementById("icon-select")
+    btn.addEventListener('mouseover', handleMouseOver);
+    btn.addEventListener('mouseout', handleMouseOut);
+
+
+    function voteButton(action, voteId) {
+
+        var url = '/vote/' + action + '/' + voteId;
+
+        console.log(voteId);
+        console.log(action);
+        var confirmationMessage = (action === 'agree') ? '찬성하시면 취소할 수 없습니다. 정말로 찬성하시겠습니까?' : '반대하시면 취소할 수 없습니다. 정말로 반대하시겠습니까?';
+
+        if (confirm(confirmationMessage)) {
+            $.ajax({
+                type: 'GET', // POST로 변경
+                url: url,
+                success: function (response) {
+                    // 성공적으로 처리된 경우 여기에 추가적인 로직을 작성하세요.
+                    console.log('Vote ' + action + ' 성공');
+                    // 해당 투표 ID에 대한 버튼과 메시지만 처리합니다.
+                    $("#successMessage_" + voteId).show();
+                    $("#agreeButton_" + voteId).hide();
+                    $("#disagreeButton_" + voteId).hide();
+                },
+                error: function (error) {
+                    console.error('Vote ' + action + ' 에러', error);
+                }
+            });
+        }
+    }
+</script>
+
+
+</html>
