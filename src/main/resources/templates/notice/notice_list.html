@@ -1,6 +1,6 @@
 <html layout:decorate="~{layout}">
-<h2>배고프다!!!!!</h2>
 <div layout:fragment="content" class="container my-3">
+    <h2>배고프다!!!!!</h2>
     <div class="row my-3">
         <div class="col-6">
             <a th:if="${loginUser.isCheckedAdmin()}" th:href="@{/notice/create}"
